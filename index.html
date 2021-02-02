@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Hill Tetrahedra</title>
+	<style>
+		body {
+			margin: 0;
+		}
+	</style>
+</head>
+
+<body>
+	<script type="module">
+
+		import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+		import { OrbitControls } from 'https://unpkg.com/three/examples/jsm/controls/OrbitControls.js';
+
+		const scene = new THREE.Scene();
+		const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+		const renderer = new THREE.WebGLRenderer({ antialias: true });
+		const controls = new OrbitControls(camera, renderer.domElement);
+
+		const color = 0xFFFFFF;
+		const intensity = 1;
+		// const light = new THREE.AmbientLight(color, intensity);/
+		const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
+		scene.add(light);
+
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		document.body.appendChild(renderer.domElement);
+
+		scene.background = new THREE.Color('lightgray');
+		camera.position.set(2, 2, 2);
+		camera.lookAt(0, 0, 0);
+		controls.update();
+		controls.autoRotate = true;
+
+
+		const vertices = new Float32Array([
+			0.0, 0.0, 0.0,
+			1.0, 0.0, 0.0,
+			1.0, 0.0, 1.0,
+
+			1.0, 1.0, 1.0,
+			1.0, 0.0, 1.0,
+			1.0, 0.0, 0.0,
+
+			0.0, 0.0, 0.0,
+			1.0, 0.0, 1.0,
+			1.0, 1.0, 1.0,
+
+			1.0, 1.0, 1.0,
+			1.0, 0.0, 0.0,
+			0.0, 0.0, 0.0
+		])
+
+		const geometry = new THREE.BufferGeometry();
+		geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+		geometry.computeVertexNormals();
+		// const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+		// const material = new THREE.MeshNormalMaterial();
+		// const material = new THREE.MeshPhongMaterial();
+		// const material = new THREE.MeshDepthMaterial();
+		const materialRed = new THREE.MeshPhongMaterial({ color: 0xFF0000 });
+		const materialBlue = new THREE.MeshPhongMaterial({ color: 0x00FF00 });
+		const materialGreen = new THREE.MeshPhongMaterial({ color: 0x0000FF });
+
+
+		let axis = new THREE.Vector3(1, 1, 1);
+		axis.normalize();
+
+		const tetra1 = new THREE.Mesh(geometry, materialRed);
+		scene.add(tetra1);
+
+		let tetra2 = new THREE.Mesh(geometry, materialBlue);
+		tetra2.rotateOnAxis(axis, 2 * Math.PI / 3);
+		scene.add(tetra2);
+
+		let tetra3 = new THREE.Mesh(geometry, materialGreen);
+		tetra3.rotateOnAxis(axis, -2 * Math.PI / 3);
+		scene.add(tetra3);
+
+
+		let geometryLine = new THREE.BoxGeometry(1, 1, 1);
+		geometryLine.translate(0.5, 0.5, 0.5);
+		const materialLine = new THREE.LineBasicMaterial({ color: 0x000000 });
+		const edges = new THREE.EdgesGeometry(geometryLine);
+		const line = new THREE.LineSegments(edges, materialLine);
+
+		line.material.depthTest = false;
+		line.material.opacity = 0.25;
+		// line.material.transparent = true;
+
+		scene.add(line);
+
+		function animate() {
+			requestAnimationFrame(animate);
+			controls.update();
+			renderer.render(scene, camera);
+		}
+
+		animate();
+	</script>
+
+
+</body>
+
+</html>
